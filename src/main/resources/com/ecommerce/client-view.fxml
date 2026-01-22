@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.ecommerce.controllers.ClientViewController"
+            prefHeight="800.0" prefWidth="1200.0"
+            styleClass="client-root" stylesheets="@styles/client.css">
+
+    <!-- Top Menu Bar -->
+    <top>
+        <VBox styleClass="top-bar">
+            <HBox spacing="20" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+                <Label text="Smart E-Commerce" style="-fx-text-fill: white; -fx-font-size: 20; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="userLabel" text="Welcome, Guest" style="-fx-text-fill: white; -fx-font-size: 12;" />
+                <Button fx:id="cartButton" text="🛒 Cart (0)" style="-fx-font-size: 12; -fx-padding: 8;" onAction="#showCart" />
+                <Button fx:id="ordersButton" text="📦 Orders" style="-fx-font-size: 12; -fx-padding: 8;" onAction="#showOrders" />
+                <Button fx:id="logoutButton" text="Logout" style="-fx-font-size: 12; -fx-padding: 8;" onAction="#logout" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Main Content Area -->
+    <center>
+        <StackPane fx:id="mainContent" />
+    </center>
+
+</BorderPane>

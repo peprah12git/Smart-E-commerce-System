@@ -66,4 +66,38 @@ CREATE TABLE Reviews (
     FOREIGN KEY (product_id) REFERENCES Products(product_id)
 );
 
+-- ============ INDEXES FOR PERFORMANCE ============
+-- Indexes optimize common lookups, joins, and range queries
+-- Each index improves query performance for specific access patterns
+
+-- User lookup by email (login authentication)
+CREATE INDEX idx_users_email ON Users(email);
+
+-- Product filtering by category (catalog browsing)
+CREATE INDEX idx_products_category ON Products(category_id);
+
+-- Product search by name (search functionality)
+CREATE INDEX idx_products_name ON Products(name);
+
+-- Inventory lookup by product (stock checks)
+CREATE INDEX idx_inventory_product ON Inventory(product_id);
+
+-- Order retrieval by user (order history)
+CREATE INDEX idx_orders_user ON Orders(user_id);
+
+-- Order sorting by date (recent orders)
+CREATE INDEX idx_orders_date ON Orders(order_date);
+
+-- Order items lookup by order (order details)
+CREATE INDEX idx_order_items_order ON OrderItems(order_id);
+
+-- Order items lookup by product (product sales)
+CREATE INDEX idx_order_items_product ON OrderItems(product_id);
+
+-- Reviews lookup by product (product reviews page)
+CREATE INDEX idx_reviews_product ON Reviews(product_id);
+
+-- Reviews lookup by user (user's reviews)
+CREATE INDEX idx_reviews_user ON Reviews(user_id);
+
 SHOW TABLES;

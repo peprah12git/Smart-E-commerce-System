@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ecommerce.controllers.LoginController"
+      prefHeight="500.0" prefWidth="600.0" alignment="CENTER" spacing="20"
+      styleClass="root" stylesheets="@styles/login.css">
+
+    <padding>
+        <Insets top="40" left="50" right="50" bottom="40" />
+    </padding>
+
+    <VBox alignment="CENTER" spacing="25" styleClass="main-container" maxWidth="450">
+        <padding>
+            <Insets top="40" left="40" right="40" bottom="40" />
+        </padding>
+
+        <Label text="Smart E-Commerce System" styleClass="title-label" />
+        
+        <Label text="Browse our products as a guest or sign in for full features" styleClass="subtitle-label" />
+
+        <Separator prefWidth="350" />
+
+        <VBox spacing="15" styleClass="login-box" prefWidth="400">
+            <Label text="Login" styleClass="section-title" />
+
+            <TextField fx:id="emailField" promptText="Email" prefHeight="45" />
+            <PasswordField fx:id="passwordField" promptText="Password" prefHeight="45" />
+
+            <HBox spacing="12" alignment="CENTER">
+                <Button text="Sign In" prefWidth="180" prefHeight="45" onAction="#handleSignIn" />
+                <Button text="Continue as Guest" prefWidth="180" prefHeight="45" styleClass="guest-button" onAction="#handleGuest" />
+            </HBox>
+            
+            <Hyperlink text="Admin Login" styleClass="hyperlink" onAction="#handleAdminLogin" alignment="CENTER" />
+        </VBox>
+
+        <Label fx:id="errorLabel" styleClass="error-label" />
+    </VBox>
+
+</VBox>

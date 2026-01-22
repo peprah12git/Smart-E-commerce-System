@@ -35,6 +35,20 @@ public class OrderItemDAO {
         return false;
     }
 
+    public boolean addOrderItem(int orderId, int productId, int quantity, java.math.BigDecimal unitPrice) {
+        String sql = "INSERT INTO OrderItems (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, orderId);
+            pstmt.setInt(2, productId);
+            pstmt.setInt(3, quantity);
+            pstmt.setBigDecimal(4, unitPrice);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error adding order item: " + e.getMessage());
+        }
+        return false;
+    }
+
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         List<OrderItem> items = new ArrayList<>();
         String sql = "SELECT oi.*, p.name as product_name FROM OrderItems oi " +

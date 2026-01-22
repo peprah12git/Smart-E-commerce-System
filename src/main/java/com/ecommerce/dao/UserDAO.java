@@ -19,13 +19,14 @@ public class UserDAO {
     }
 
     public boolean addUser(User user) {
-        String sql = "INSERT INTO Users (name, email, password, phone, address) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (name, email, password, phone, address, role) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPassword());
             pstmt.setString(4, user.getPhone());
             pstmt.setString(5, user.getAddress());
+            pstmt.setString(6, user.getRole() != null ? user.getRole() : "user");
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
@@ -85,13 +86,14 @@ public class UserDAO {
     }
 
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET name = ?, email = ?, phone = ?, address = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET name = ?, email = ?, phone = ?, address = ?, role = ? WHERE user_id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, user.getName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPhone());
             pstmt.setString(4, user.getAddress());
-            pstmt.setInt(5, user.getUserId());
+            pstmt.setString(5, user.getRole());
+            pstmt.setInt(6, user.getUserId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Error updating user: " + e.getMessage());
@@ -118,6 +120,7 @@ public class UserDAO {
         user.setPassword(rs.getString("password"));
         user.setPhone(rs.getString("phone"));
         user.setAddress(rs.getString("address"));
+        user.setRole(rs.getString("role"));
         user.setCreatedAt(rs.getTimestamp("created_at"));
         return user;
     }

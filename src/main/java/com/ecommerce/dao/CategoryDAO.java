@@ -97,7 +97,6 @@ public class CategoryDAO {
                 category.setCategoryName(rs.getString("category_name"));
                 category.setDescription(rs.getString("description"));
                 category.setParentCategoryId(rs.getObject("category_id", Integer.class));
-//                category.setCrqeatedAt(rs.getTimestamp("created_at"));
                 return category;
             }
         } catch (SQLException e) {
@@ -105,5 +104,40 @@ public class CategoryDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Update category
+     */
+    public boolean updateCategory(Category category) {
+        String sql = "UPDATE Categories SET category_name = ?, description = ? WHERE category_id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, category.getCategoryName());
+            pstmt.setString(2, category.getDescription());
+            pstmt.setInt(3, category.getCategoryId());
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating category: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Delete category
+     */
+    public boolean deleteCategory(int categoryId) {
+        String sql = "DELETE FROM Categories WHERE category_id = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, categoryId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting category: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 }

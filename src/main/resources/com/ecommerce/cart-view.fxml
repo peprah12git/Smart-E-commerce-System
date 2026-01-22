@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.ecommerce.controllers.CartViewController"
+      prefHeight="750.0" prefWidth="1180.0" spacing="15"
+      stylesheets="@styles/client.css">
+
+    <padding>
+        <Insets top="15" left="15" right="15" bottom="15" />
+    </padding>
+
+    <Label text="Shopping Cart" style="-fx-font-size: 20; -fx-font-weight: bold;" />
+
+    <HBox spacing="15" VBox.vgrow="ALWAYS">
+        <!-- Cart Items Table -->
+        <VBox prefWidth="800" spacing="10">
+            <Label text="Items in Cart" style="-fx-font-size: 14; -fx-font-weight: bold;" />
+            <TableView fx:id="cartTable" prefHeight="500" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn text="Product Name" prefWidth="300" fx:id="nameColumn" />
+                    <TableColumn text="Price" prefWidth="100" fx:id="priceColumn" />
+                    <TableColumn text="Quantity" prefWidth="100" fx:id="quantityColumn" />
+                    <TableColumn text="Subtotal" prefWidth="100" fx:id="subtotalColumn" />
+                    <TableColumn text="Action" prefWidth="100" fx:id="actionColumn" />
+                </columns>
+            </TableView>
+        </VBox>
+
+        <!-- Order Summary Sidebar -->
+        <VBox prefWidth="350" spacing="15" style="-fx-border-color: #ddd; -fx-padding: 15; -fx-border-radius: 5;">
+            <Label text="Order Summary" style="-fx-font-size: 16; -fx-font-weight: bold;" />
+            <Separator />
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Subtotal:" style="-fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="subtotalLabel" text="$0.00" />
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Shipping:" style="-fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="shippingLabel" text="FREE" style="-fx-text-fill: #27ae60;" />
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Tax:" style="-fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="taxLabel" text="$0.00" />
+            </HBox>
+
+            <Separator />
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Total:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="totalLabel" text="$0.00" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #e74c3c;" />
+            </HBox>
+
+            <Separator />
+
+            <Button text="Continue Shopping" style="-fx-font-size: 12; -fx-padding: 10;" onAction="#continueShopping" />
+            <Button text="Proceed to Checkout" style="-fx-font-size: 12; -fx-padding: 10; -fx-font-weight: bold;" onAction="#checkout" />
+
+            <Label fx:id="emptyLabel" text="Your cart is empty" style="-fx-text-alignment: center; -fx-font-size: 14;" />
+        </VBox>
+    </HBox>
+
+</VBox>

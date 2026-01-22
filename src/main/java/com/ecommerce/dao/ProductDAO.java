@@ -11,11 +11,50 @@ import java.util.List;
 import com.ecommerce.config.DatabaseConnection;
 import com.ecommerce.models.Product;
 
+/**
+ * Data Access Object for Products with in-memory caching
+ * Implements caching strategy to reduce database load
+ */
 public class ProductDAO {
     private Connection connection;
+    
+    // ============ CACHING IMPLEMENTATION ============
+    // Static cache shared across all ProductDAO instances
+    private static List<Product> productCache = null;
+    private static long cacheTimestamp = 0;
+    private static final long CACHE_TTL_MS = 300000; // 5 minutes cache TTL
+    private static int cacheHits = 0;
+    private static int cacheMisses = 0;
 
     public ProductDAO() {
         this.connection = DatabaseConnection.getInstance().getConnection();
+    }
+    
+    /**
+     * Check if cache is valid (exists and not expired)
+     */
+    private boolean isCacheValid() {
+        return productCache != null && 
+               (System.currentTimeMillis() - cacheTimestamp) < CACHE_TTL_MS;
+    }
+    
+    /**
+     * Invalidate the cache - call after any write operation
+     */
+    public void invalidateCache() {
+        productCache = null;
+        cacheTimestamp = 0;
+        System.out.println("[CACHE] Product cache invalidated");
+    }
+    
+    /**
+     * Get cache statistics for performance monitoring
+     */
+    public static String getCacheStats() {
+        int total = cacheHits + cacheMisses;
+        double hitRate = total > 0 ? (cacheHits * 100.0 / total) : 0;
+        return String.format("[CACHE] Hits: %d, Misses: %d, Hit Rate: %.1f%%", 
+                             cacheHits, cacheMisses, hitRate);
     }
 //adds a new product to the database
     public boolean addProduct(Product product) {
@@ -33,6 +72,7 @@ public class ProductDAO {
                     product.setProductId(rs.getInt(1));
                     createInventoryEntry(product.getProductId());
                 }
+                invalidateCache(); // Invalidate cache after insert
                 return true;
             }
         } catch (SQLException e) {
@@ -50,8 +90,19 @@ public class ProductDAO {
             System.err.println("Error creating inventory: " + e.getMessage());
         }
     }
-        //fetches all products from the database
+        //fetches all products from the database with caching
     public List<Product> getAllProducts() {
+        // Check cache first
+        if (isCacheValid()) {
+            cacheHits++;
+            System.out.println("[CACHE] Product cache HIT - returning " + productCache.size() + " cached products");
+            return new ArrayList<>(productCache); // Return copy to prevent modification
+        }
+        
+        // Cache miss - query database
+        cacheMisses++;
+        long startTime = System.currentTimeMillis();
+        
         List<Product> products = new ArrayList<>();
         String sql = "SELECT p.*, c.category_name, COALESCE(i.quantity_available, 0) as quantity " +
                 "FROM Products p " +
@@ -64,6 +115,15 @@ public class ProductDAO {
             while (rs.next()) {
                 products.add(extractProduct(rs));
             }
+            
+            // Update cache
+            productCache = new ArrayList<>(products);
+            cacheTimestamp = System.currentTimeMillis();
+            
+            long queryTime = System.currentTimeMillis() - startTime;
+            System.out.println("[CACHE] Product cache MISS - loaded " + products.size() + 
+                             " products from DB in " + queryTime + "ms");
+                             
         } catch (SQLException e) {
             System.err.println("Error fetching products: " + e.getMessage());
         }
@@ -97,7 +157,11 @@ public class ProductDAO {
             pstmt.setBigDecimal(3, product.getPrice());
             pstmt.setInt(4, product.getCategoryId());
             pstmt.setInt(5, product.getProductId());
-            return pstmt.executeUpdate() > 0;
+            boolean updated = pstmt.executeUpdate() > 0;
+            if (updated) {
+                invalidateCache(); // Invalidate cache after update
+            }
+            return updated;
         } catch (SQLException e) {
             System.err.println("Error updating product: " + e.getMessage());
         }
@@ -108,7 +172,11 @@ public class ProductDAO {
         String sql = "DELETE FROM Products WHERE product_id = ?";
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setInt(1, id);
-            return pstmt.executeUpdate() > 0;
+            boolean deleted = pstmt.executeUpdate() > 0;
+            if (deleted) {
+                invalidateCache(); // Invalidate cache after delete
+            }
+            return deleted;
         } catch (SQLException e) {
             System.err.println("Error deleting product: " + e.getMessage());
         }
