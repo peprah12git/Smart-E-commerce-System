@@ -1,13 +1,97 @@
 package com.ecommerce;
 
-import com.ecommerce.ui.App;
+import java.io.IOException;
 
-/**
- * Main Entry Point for E-Commerce Application
- * Launches the JavaFX application
- */
-public class Main {
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+public class Main extends Application {
+    private Stage primaryStage;
+    
+    @Override
+    public void start(Stage stage) throws IOException {
+        this.primaryStage = stage;
+        showLogin();
+    }
+
+    private void showLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/ecommerce/login-view.fxml"));
+        Parent root = loader.load();
+
+        com.ecommerce.Controllers.LoginController controller = loader.getController();
+        controller.setHost(new com.ecommerce.Controllers.LoginController.MainHost() {
+            @Override
+            public void onAuthenticated() {
+                try {
+                    showAdminView();
+                } catch (IOException e) {
+                    showError("Failed to load admin view", e);
+                }
+            }
+
+            @Override
+            public void onGuest() {
+                try {
+                    showClientView();
+                } catch (IOException e) {
+                    showError("Failed to load client view", e);
+                }
+            }
+        });
+
+        Scene scene = new Scene(root, 520, 420);
+        primaryStage.setTitle("Sign In - Smart E-Commerce System");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.show();
+    }
+
+    private void showAdminView() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/ecommerce/main-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1400, 800);
+
+        primaryStage.setTitle("Smart E-Commerce System - Admin");
+        primaryStage.setScene(scene);
+        primaryStage.setMinWidth(1200);
+        primaryStage.setMinHeight(700);
+        primaryStage.show();
+
+        System.out.println("✓ Admin view loaded");
+    }
+
+    private void showClientView() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/ecommerce/client-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
+
+        primaryStage.setTitle("Smart E-Commerce System - Client");
+        primaryStage.setScene(scene);
+        primaryStage.setMinWidth(1000);
+        primaryStage.setMinHeight(700);
+        primaryStage.show();
+
+        System.out.println("✓ Client view loaded");
+    }
+
+    private void showError(String message, Exception e) {
+        System.err.println("✗ " + message + ": " + e.getMessage());
+        e.printStackTrace();
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(message);
+        alert.setContentText(e.getMessage());
+        alert.showAndWait();
+    }
+    
+    @Override
+    public void stop() {
+        System.out.println("✓ Application closing...");
+        com.ecommerce.config.DatabaseConnection.getInstance().closeConnection();
+    }
+
     public static void main(String[] args) {
-        App.main(args);
+        launch();
     }
 }
