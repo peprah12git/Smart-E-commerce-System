@@ -2,6 +2,8 @@ package com.ecommerce;
 
 import java.io.IOException;
 
+import com.ecommerce.util.DatabaseInitializer;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,6 +16,11 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         this.primaryStage = stage;
+        
+        // Initialize database on startup
+        System.out.println("🚀 Starting e-Commerce Application...");
+        DatabaseInitializer.initializeDatabase();
+        
         showLogin(); // Start with user/guest login
     }
 
@@ -46,6 +53,7 @@ public class Main extends Application {
         primaryStage.setTitle("Admin Login - E-Commerce System");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
@@ -56,7 +64,16 @@ public class Main extends Application {
         com.ecommerce.controllers.LoginController controller = loader.getController();
         controller.setHost(new com.ecommerce.controllers.LoginController.MainHost() {
             @Override
-            public void onAuthenticated() {
+            public void onAdminAuthenticated() {
+                try {
+                    showAdminView();
+                } catch (IOException e) {
+                    showError("Failed to load admin view", e);
+                }
+            }
+
+            @Override
+            public void onUserAuthenticated() {
                 try {
                     showClientView();
                 } catch (IOException e) {
@@ -83,10 +100,10 @@ public class Main extends Application {
             }
         });
 
-        Scene scene = new Scene(root, 600, 500);
+        Scene scene = new Scene(root);
         primaryStage.setTitle("Sign In - Smart E-Commerce System");
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setMaximized(true);
         primaryStage.centerOnScreen();
         primaryStage.show();
     }

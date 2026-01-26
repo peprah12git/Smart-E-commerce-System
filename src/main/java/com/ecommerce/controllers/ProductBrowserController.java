@@ -13,7 +13,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -43,6 +42,7 @@ public class ProductBrowserController {
         productService = ProductService.getInstance();
         categoryService = CategoryService.getInstance();
         
+        System.out.println("✓ ProductBrowserController initialized");
         loadProducts();
         setupCategoryFilter();
     }
@@ -56,7 +56,9 @@ public class ProductBrowserController {
     }
 
     private void loadProducts() {
+        System.out.println("📦 Loading products...");
         allProducts = productService.getAllProducts();
+        System.out.println("📦 Total products fetched: " + (allProducts != null ? allProducts.size() : 0));
         displayProducts(allProducts);
     }
 
@@ -85,10 +87,17 @@ public class ProductBrowserController {
     }
 
     private void displayProducts(List<Product> products) {
+        System.out.println("🎨 Displaying products. Count: " + (products != null ? products.size() : 0));
         productsGrid.getChildren().clear();
+
+        if (products == null || products.isEmpty()) {
+            System.out.println("⚠️  No products to display!");
+            return;
+        }
 
         int row = 0, col = 0;
         for (Product product : products) {
+            System.out.println("  - Adding product: " + product.getProductName());
             VBox productCard = createProductCard(product);
             productsGrid.add(productCard, col, row);
 
@@ -118,20 +127,25 @@ public class ProductBrowserController {
         Label stockLabel = new Label("Stock: " + product.getQuantityAvailable());
         stockLabel.setStyle("-fx-font-size: 10; -fx-text-fill: #7f8c8d;");
 
-        Spinner<Integer> quantitySpinner = new Spinner<>(1, product.getQuantityAvailable(), 1);
-        quantitySpinner.setPrefWidth(100);
-
         Button addButton = new Button("Add to Cart");
         addButton.setPrefWidth(150);
         addButton.setStyle("-fx-font-size: 11; -fx-padding: 8;");
-        addButton.setOnAction(e -> addToCart(product, quantitySpinner.getValue()));
+        
+        // Disable add button if out of stock
+        if (product.getQuantityAvailable() <= 0) {
+            addButton.setDisable(true);
+            addButton.setText("Out of Stock");
+            stockLabel.setStyle("-fx-font-size: 10; -fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+        }
+        
+        addButton.setOnAction(e -> addToCart(product, 1));
 
         Button viewButton = new Button("View Details");
         viewButton.setPrefWidth(150);
         viewButton.setStyle("-fx-font-size: 11; -fx-padding: 8; -fx-background-color: #3498db; -fx-text-fill: white;");
         viewButton.setOnAction(e -> viewProductDetails(product));
 
-        card.getChildren().addAll(nameLabel, descLabel, priceLabel, stockLabel, quantitySpinner, addButton, viewButton);
+        card.getChildren().addAll(nameLabel, descLabel, priceLabel, stockLabel, addButton, viewButton);
         return card;
     }
 

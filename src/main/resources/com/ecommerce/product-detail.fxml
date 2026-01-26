@@ -20,19 +20,25 @@
         <VBox prefWidth="650" spacing="15">
             <Label fx:id="productNameLabel" text="Product Name" style="-fx-font-size: 24; -fx-font-weight: bold;" />
             
-            <HBox spacing="15" alignment="CENTER_LEFT">
-                <Label fx:id="productPriceLabel" text="$0.00" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
+            <HBox spacing="15">
+                <Label fx:id="productPriceLabel" text="0.00" style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #27ae60;" />
                 <Label fx:id="avgRatingLabel" text="⭐ 0.0 / 5.0" style="-fx-font-size: 14; -fx-text-fill: #f39c12;" />
             </HBox>
 
+            <Separator />
+            
+            <Label text="Product Description" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" />
             <Label fx:id="productDescLabel" text="Product description..." wrapText="true" 
-                   style="-fx-font-size: 14; -fx-text-fill: #555;" />
+                   prefWidth="600" minHeight="60"
+                   style="-fx-font-size: 14; -fx-text-fill: #555; -fx-padding: 10; -fx-background-color: #f9f9f9; -fx-background-radius: 5;" />
+
+            <Separator />
 
             <Label fx:id="productStockLabel" text="In Stock: 0" style="-fx-font-size: 13; -fx-text-fill: #27ae60; -fx-font-weight: bold;" />
 
             <Separator />
 
-            <HBox spacing="15" alignment="CENTER_LEFT">
+            <HBox spacing="15">
                 <Label text="Quantity:" style="-fx-font-size: 14; -fx-font-weight: bold;" />
                 <Spinner fx:id="quantitySpinner" prefWidth="100" editable="true" />
                 <Button fx:id="addToCartButton" text="Add to Cart" style="-fx-font-size: 14; -fx-padding: 10 20; -fx-font-weight: bold;" 
@@ -52,7 +58,7 @@
 
             <Label text="Write a Review" style="-fx-font-size: 14; -fx-font-weight: bold;" />
             
-            <HBox spacing="10" alignment="CENTER_LEFT">
+            <HBox spacing="10">
                 <Label text="Rating:" style="-fx-font-size: 12;" />
                 <Spinner fx:id="ratingSpinner" prefWidth="80" editable="false">
                     <valueFactory>

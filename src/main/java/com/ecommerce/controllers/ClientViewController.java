@@ -63,6 +63,7 @@ public class ClientViewController {
             mainContent.getChildren().setAll(root);
         } catch (IOException e) {
             System.err.println("Error loading cart: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -82,6 +82,15 @@ public class Product {
         this.quantityAvailable = quantityAvailable;
     }
 
+    // Alias methods for convenience
+    public int getQuantity() {
+        return quantityAvailable;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantityAvailable = quantity;
+    }
+
     public Timestamp getCreatedAt() {
         return createdAt;
     }

@@ -110,8 +110,17 @@ public class ProductDAO {
                 "LEFT JOIN Inventory i ON p.product_id = i.product_id " +
                 "ORDER BY p.product_id DESC";
 
+        // Re-fetch connection to ensure it's valid
+        this.connection = DatabaseConnection.getInstance().getConnection();
+        
+        if (connection == null) {
+            System.err.println(" Database connection is NULL! Cannot fetch products.");
+            return products;
+        }
+
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+            System.out.println(" Executing SQL query for products...");
             while (rs.next()) {
                 products.add(extractProduct(rs));
             }
@@ -125,7 +134,8 @@ public class ProductDAO {
                              " products from DB in " + queryTime + "ms");
                              
         } catch (SQLException e) {
-            System.err.println("Error fetching products: " + e.getMessage());
+            System.err.println(" Error fetching products: " + e.getMessage());
+            e.printStackTrace();
         }
         return products;
     }

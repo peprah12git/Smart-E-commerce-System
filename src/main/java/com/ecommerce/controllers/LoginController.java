@@ -2,8 +2,13 @@ package com.ecommerce.controllers;
 
 import com.ecommerce.models.User;
 import com.ecommerce.service.UserService;
+
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 /**
  * Controller for Login view
@@ -20,6 +25,8 @@ public class LoginController {
     @FXML private TextField phoneField;
     @FXML private TextArea addressField;
     @FXML private Label errorLabel;
+    @FXML private VBox loginBox;
+    @FXML private VBox registerBox;
 
     // Service (not DAO)
     private UserService userService;
@@ -34,7 +41,7 @@ public class LoginController {
     public void setHost(MainHost host) {
         this.mainHost = host;
     }
-
+// Handle Sign In button click
     @FXML
     private void handleSignIn() {
         String email = emailField.getText();
@@ -49,7 +56,12 @@ public class LoginController {
         User user = userService.authenticate(email, password);
         if (user != null) {
             UserSession.setCurrentUser(user);
-            mainHost.onAuthenticated();
+            // Route based on user role
+            if ("admin".equalsIgnoreCase(user.getRole())) {
+                mainHost.onAdminAuthenticated();
+            } else {
+                mainHost.onUserAuthenticated();
+            }
         } else {
             showError("Invalid email or password");
         }
@@ -91,6 +103,24 @@ public class LoginController {
         errorLabel.setText(message);
     }
 
+    @FXML
+    private void showRegisterForm() {
+        loginBox.setVisible(false);
+        loginBox.setManaged(false);
+        registerBox.setVisible(true);
+        registerBox.setManaged(true);
+        errorLabel.setText("");
+    }
+
+    @FXML
+    private void showLoginForm() {
+        registerBox.setVisible(false);
+        registerBox.setManaged(false);
+        loginBox.setVisible(true);
+        loginBox.setManaged(true);
+        errorLabel.setText("");
+    }
+
     private void clearRegisterForm() {
         nameField.clear();
         registerEmailField.clear();
@@ -100,7 +130,8 @@ public class LoginController {
     }
 
     public interface MainHost {
-        void onAuthenticated();
+        void onAdminAuthenticated();
+        void onUserAuthenticated();
         void onGuest();
         void onSwitchToAdminLogin();
     }

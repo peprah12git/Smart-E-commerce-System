@@ -1,7 +1,7 @@
 package com.ecommerce.controllers;
 
-import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import com.ecommerce.models.CartItem;
 import com.ecommerce.models.Product;
@@ -12,11 +12,14 @@ import com.ecommerce.service.ReviewService;
 
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
-import java.util.List;
 
 /**
  * Controller for Product Detail view
@@ -72,7 +75,16 @@ public class ProductDetailController {
     private void displayProductDetails() {
         productNameLabel.setText(product.getProductName());
         productPriceLabel.setText(String.format("$%.2f", product.getPrice()));
-        productDescLabel.setText(product.getDescription());
+        
+        // Display description or placeholder if empty
+        String description = product.getDescription();
+        if (description != null && !description.trim().isEmpty()) {
+            productDescLabel.setText(description);
+        } else {
+            productDescLabel.setText("No description available for this product.");
+            productDescLabel.setStyle("-fx-font-size: 14; -fx-text-fill: #999; -fx-font-style: italic; -fx-padding: 10; -fx-background-color: #f9f9f9; -fx-background-radius: 5;");
+        }
+        
         productStockLabel.setText("In Stock: " + product.getQuantityAvailable());
         
         // Setup quantity spinner
@@ -133,24 +145,22 @@ public class ProductDetailController {
 
     @FXML
     private void handleAddToCart() {
+        if (product == null) {
+            showAlert("Error", "No product selected.");
+            return;
+        }
         int quantity = quantitySpinner.getValue();
-        
-        CartItem item = new CartItem(
-            product.getProductId(),
-            product.getProductName(),
-            product.getPrice(),
-            quantity,
-            product.getDescription()
-        );
-
+        if (quantity <= 0) {
+            showAlert("Invalid Quantity", "Please select a valid quantity.");
+            return;
+        }
+        // Add to cart
+        CartItem item = new CartItem(product.getProductId(), product.getProductName(), product.getPrice(), quantity, product.getDescription());
         CartService.getInstance().addItem(item);
-        clientViewController.updateCartButton();
-        
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Success");
-        alert.setHeaderText(null);
-        alert.setContentText(product.getProductName() + " added to cart!");
-        alert.showAndWait();
+        if (clientViewController != null) {
+            clientViewController.updateCartButton();
+        }
+        showAlert("Added to Cart", String.format("%s x%d added to your cart.", product.getProductName(), quantity));
     }
 
     @FXML
@@ -197,5 +207,9 @@ public class ProductDetailController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void showAlert(String title, String message) {
+        showAlert(Alert.AlertType.INFORMATION, title, message);
     }
 }

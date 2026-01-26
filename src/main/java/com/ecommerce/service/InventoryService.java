@@ -1,9 +1,12 @@
 package com.ecommerce.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.ecommerce.dao.InventoryDAO;
 import com.ecommerce.models.Inventory;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class InventoryService {
     private InventoryDAO inventoryDAO;
@@ -95,6 +98,13 @@ public class InventoryService {
             items.sort(Comparator.comparing(Inventory::getQuantityAvailable).reversed());
         }
         return items;
+    }
+
+    /**
+     * Update stock for a product (alias for updateInventory)
+     */
+    public boolean updateStock(int productId, int quantity) {
+        return updateInventory(productId, quantity);
     }
 
     private void invalidateCache() {

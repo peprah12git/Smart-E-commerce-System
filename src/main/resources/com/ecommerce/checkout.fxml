@@ -36,15 +36,20 @@
 
                     <Label text="Address:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                     <TextArea fx:id="addressField" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    
+                    <Label text="City:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="cityField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    
+                    <Label text="Postal Code:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <TextField fx:id="postalCodeField" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                 </GridPane>
             </TitledPane>
 
-            <!-- Payment Method -->
-            <TitledPane text="Payment Method" collapsible="false">
+            <!-- Order Notes (Optional) -->
+            <TitledPane text="Order Notes (Optional)" collapsible="false">
                 <VBox spacing="10" style="-fx-padding: 15;">
-                    <RadioButton text="Credit Card" fx:id="creditCardRadio" toggleGroup="paymentGroup" selected="true" />
-                    <RadioButton text="Debit Card" fx:id="debitCardRadio" toggleGroup="paymentGroup" />
-                    <RadioButton text="PayPal" fx:id="paypalRadio" toggleGroup="paymentGroup" />
+                    <TextArea fx:id="orderNotesField" promptText="Add any special instructions for your order..." 
+                              prefRowCount="3" wrapText="true" />
                 </VBox>
             </TitledPane>
         </VBox>
@@ -66,7 +71,7 @@
                     <HBox spacing="10">
                         <Label text="Subtotal:" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="checkoutSubtotal" text="$0.00" />
+                        <Label fx:id="checkoutSubtotal" text="0.00" />
                     </HBox>
 
                     <HBox spacing="10">
@@ -78,7 +83,7 @@
                     <HBox spacing="10">
                         <Label text="Tax:" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="checkoutTax" text="$0.00" />
+                        <Label fx:id="checkoutTax" text="0.00" />
                     </HBox>
 
                     <Separator />
@@ -86,7 +91,7 @@
                     <HBox spacing="10">
                         <Label text="Total:" style="-fx-font-weight: bold; -fx-font-size: 14;" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="checkoutTotal" text="$0.00" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #e74c3c;" />
+                        <Label fx:id="checkoutTotal" text="0.00" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #e74c3c;" />
                     </HBox>
 
                     <Separator />

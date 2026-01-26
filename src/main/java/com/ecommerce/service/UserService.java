@@ -1,10 +1,10 @@
 package com.ecommerce.service;
 
-import com.ecommerce.dao.UserDAO;
-import com.ecommerce.models.User;
-
 import java.util.List;
 import java.util.regex.Pattern;
+
+import com.ecommerce.dao.UserDAO;
+import com.ecommerce.models.User;
 
 /**
  * Service layer for User operations
@@ -51,8 +51,8 @@ public class UserService {
             System.err.println("[UserService] Password is required");
             return null;
         }
-        
-        User user = userDAO.getUserByEmail(email.trim());
+        // Fetch user by email
+        User user = userDAO.getUserByEmail(email.trim()); 
         if (user != null && user.getPassword().equals(password)) {
             System.out.println("[UserService] User authenticated: " + user.getName());
             return user;
@@ -68,6 +68,7 @@ public class UserService {
      */
     public User authenticateAdmin(String email, String password) {
         User user = authenticate(email, password);
+        System.out.println(user);
         if (user != null && "admin".equalsIgnoreCase(user.getRole())) {
             System.out.println("[UserService] Admin authenticated: " + user.getName());
             return user;
@@ -114,7 +115,7 @@ public class UserService {
         User user = new User();
         user.setName(name.trim());
         user.setEmail(email.trim().toLowerCase());
-        user.setPassword(password); // In production, hash this!
+        user.setPassword(password);
         user.setPhone(phone != null ? phone.trim() : "");
         user.setAddress(address != null ? address.trim() : "");
         user.setRole("user");
@@ -219,7 +220,7 @@ public class UserService {
             return false;
         }
         
-        user.setPassword(newPassword); // In production, hash this!
+        user.setPassword(newPassword);
         return userDAO.updateUser(user);
     }
     
