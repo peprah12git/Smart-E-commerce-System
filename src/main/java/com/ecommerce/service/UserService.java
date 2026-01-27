@@ -1,242 +1,108 @@
 package com.ecommerce.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 import com.ecommerce.dao.UserDAO;
 import com.ecommerce.models.User;
 
-/**
- * Service layer for User operations
- * Implements business logic for authentication and user management
- * 
- * Pattern: Controller -> Service -> DAO
- */
 public class UserService {
-    
-    private static UserService instance;
     private UserDAO userDAO;
-    
-    // Email validation pattern
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-    );
-    
+    private Map<Integer, User> userCache;
+    private List<User> allUsersCache;
+    private long lastCacheUpdate;
+    private static final long CACHE_VALIDITY = 300000; // 5 minutes
+
     public UserService() {
         this.userDAO = new UserDAO();
+        this.userCache = new HashMap<>();
+        this.allUsersCache = new ArrayList<>();
+        this.lastCacheUpdate = 0;
     }
-    
-    /**
-     * Get singleton instance
-     */
-    public static synchronized UserService getInstance() {
-        if (instance == null) {
-            instance = new UserService();
+
+    public boolean addUser(User user) {
+        boolean success = userDAO.addUser(user);
+        if (success) {
+            invalidateCache();
         }
-        return instance;
+        return success;
     }
-    
-    // ============ AUTHENTICATION ============
-    
-    /**
-     * Authenticate user with email and password
-     * @return User if credentials are valid, null otherwise
-     */
-    public User authenticate(String email, String password) {
-        if (email == null || email.trim().isEmpty()) {
-            System.err.println("[UserService] Email is required");
-            return null;
-        }
-        if (password == null || password.trim().isEmpty()) {
-            System.err.println("[UserService] Password is required");
-            return null;
-        }
-        // Fetch user by email
-        User user = userDAO.getUserByEmail(email.trim()); 
-        if (user != null && user.getPassword().equals(password)) {
-            System.out.println("[UserService] User authenticated: " + user.getName());
-            return user;
-        }
-        
-        System.err.println("[UserService] Authentication failed for: " + email);
-        return null;
-    }
-    
-    /**
-     * Authenticate admin user
-     * @return User if admin credentials are valid, null otherwise
-     */
-    public User authenticateAdmin(String email, String password) {
-        User user = authenticate(email, password);
-        System.out.println(user);
-        if (user != null && "admin".equalsIgnoreCase(user.getRole())) {
-            System.out.println("[UserService] Admin authenticated: " + user.getName());
-            return user;
-        }
-        System.err.println("[UserService] Admin authentication failed");
-        return null;
-    }
-    
-    /**
-     * Check if user is admin
-     */
-    public boolean isAdmin(User user) {
-        return user != null && "admin".equalsIgnoreCase(user.getRole());
-    }
-    
-    // ============ REGISTRATION ============
-    
-    /**
-     * Register new user
-     * @return RegisterResult with success status and message
-     */
-    public RegisterResult registerUser(String name, String email, String password, 
-                                        String phone, String address) {
-        // Validation
-        if (name == null || name.trim().isEmpty()) {
-            return new RegisterResult(false, "Name is required");
-        }
-        if (email == null || email.trim().isEmpty()) {
-            return new RegisterResult(false, "Email is required");
-        }
-        if (!isValidEmail(email)) {
-            return new RegisterResult(false, "Invalid email format");
-        }
-        if (password == null || password.length() < 6) {
-            return new RegisterResult(false, "Password must be at least 6 characters");
-        }
-        
-        // Check if email already exists
-        if (userDAO.getUserByEmail(email) != null) {
-            return new RegisterResult(false, "Email already registered");
-        }
-        
-        // Create user
-        User user = new User();
-        user.setName(name.trim());
-        user.setEmail(email.trim().toLowerCase());
-        user.setPassword(password);
-        user.setPhone(phone != null ? phone.trim() : "");
-        user.setAddress(address != null ? address.trim() : "");
-        user.setRole("user");
-        
-        if (userDAO.addUser(user)) {
-            System.out.println("[UserService] User registered: " + user.getEmail());
-            return new RegisterResult(true, "Registration successful", user);
-        }
-        
-        return new RegisterResult(false, "Registration failed");
-    }
-    
-    /**
-     * Result class for registration
-     */
-    public static class RegisterResult {
-        private final boolean success;
-        private final String message;
-        private final User user;
-        
-        public RegisterResult(boolean success, String message) {
-            this(success, message, null);
-        }
-        
-        public RegisterResult(boolean success, String message, User user) {
-            this.success = success;
-            this.message = message;
-            this.user = user;
-        }
-        
-        public boolean isSuccess() { return success; }
-        public String getMessage() { return message; }
-        public User getUser() { return user; }
-    }
-    
-    // ============ CRUD OPERATIONS ============
-    
-    /**
-     * Get all users
-     */
+
     public List<User> getAllUsers() {
-        return userDAO.getAllUsers();
+        long now = System.currentTimeMillis();
+
+        if (!allUsersCache.isEmpty() && (now - lastCacheUpdate) < CACHE_VALIDITY) {
+            System.out.println("✓ Users from cache");
+            return new ArrayList<>(allUsersCache);
+        }
+
+        System.out.println("✗ Fetching users from database");
+        allUsersCache = userDAO.getAllUsers();
+        lastCacheUpdate = now;
+
+        for (User u : allUsersCache) {
+            userCache.put(u.getUserId(), u);
+        }
+
+        return new ArrayList<>(allUsersCache);
     }
-    
-    /**
-     * Get user by ID
-     */
-    public User getUserById(int userId) {
-        return userDAO.getUserById(userId);
+
+    public User getUserById(int id) {
+        if (userCache.containsKey(id)) {
+            return userCache.get(id);
+        }
+
+        User user = userDAO.getUserById(id);
+        if (user != null) {
+            userCache.put(id, user);
+        }
+        return user;
     }
-    
-    /**
-     * Get user by email
-     */
+
     public User getUserByEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return null;
-        }
-        return userDAO.getUserByEmail(email.trim().toLowerCase());
+        return userDAO.getUserByEmail(email);
     }
-    
-    /**
-     * Update user profile
-     */
+
     public boolean updateUser(User user) {
-        if (user == null || user.getUserId() <= 0) {
-            System.err.println("[UserService] Invalid user for update");
-            return false;
+        boolean success = userDAO.updateUser(user);
+        if (success) {
+            invalidateCache();
         }
-        return userDAO.updateUser(user);
+        return success;
     }
-    
-    /**
-     * Delete user
-     */
-    public boolean deleteUser(int userId) {
-        if (userId <= 0) {
-            System.err.println("[UserService] Invalid user ID");
-            return false;
+
+    public boolean deleteUser(int id) {
+        boolean success = userDAO.deleteUser(id);
+        if (success) {
+            invalidateCache();
         }
-        return userDAO.deleteUser(userId);
+        return success;
     }
-    
-    // ============ PASSWORD MANAGEMENT ============
-    
-    /**
-     * Change user password
-     */
-    public boolean changePassword(int userId, String oldPassword, String newPassword) {
-        User user = userDAO.getUserById(userId);
+
+    public boolean authenticateUser(String email, String password) {
+        System.out.println("[AUTH DEBUG] Looking up user with email: " + email);
+        User user = userDAO.getUserByEmail(email);
+        
         if (user == null) {
+            System.out.println("[AUTH DEBUG] ✗ No user found with email: " + email);
             return false;
         }
         
-        if (!user.getPassword().equals(oldPassword)) {
-            System.err.println("[UserService] Old password incorrect");
-            return false;
-        }
+        System.out.println("[AUTH DEBUG] ✓ User found: " + user.getName());
+        System.out.println("[AUTH DEBUG] Stored password: " + user.getPassword());
+        System.out.println("[AUTH DEBUG] Input password: " + password);
         
-        if (newPassword == null || newPassword.length() < 6) {
-            System.err.println("[UserService] New password too short");
-            return false;
-        }
+        boolean match = user.getPassword().equals(password);
+        System.out.println("[AUTH DEBUG] Password match: " + match);
         
-        user.setPassword(newPassword);
-        return userDAO.updateUser(user);
+        return match;
     }
-    
-    // ============ VALIDATION ============
-    
-    /**
-     * Validate email format
-     */
-    public boolean isValidEmail(String email) {
-        return email != null && EMAIL_PATTERN.matcher(email).matches();
-    }
-    
-    /**
-     * Check if email is available (not registered)
-     */
-    public boolean isEmailAvailable(String email) {
-        return getUserByEmail(email) == null;
+
+    private void invalidateCache() {
+        userCache.clear();
+        allUsersCache.clear();
+        lastCacheUpdate = 0;
     }
 }

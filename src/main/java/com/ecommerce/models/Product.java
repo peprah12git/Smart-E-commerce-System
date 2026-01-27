@@ -10,97 +10,44 @@ public class Product {
     private BigDecimal price;
     private int categoryId;
     private String categoryName;
-    private int quantityAvailable;
     private Timestamp createdAt;
+    private int quantityAvailable;
 
-    public Product(int productId, String productName, String description, BigDecimal price, int categoryId) {
-        this.productId = productId;
+    public Product() {}
+
+    public Product(String productName, String description, BigDecimal price, int categoryId) {
         this.productName = productName;
         this.description = description;
         this.price = price;
         this.categoryId = categoryId;
-        this.quantityAvailable = 0;
     }
 
-    public Product() {
-    }
+    public int getProductId() { return productId; }
+    public void setProductId(int productId) { this.productId = productId; }
 
-    // Getters and Setters
-    public int getProductId() {
-        return productId;
-    }
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getProductName() {
-        return productName;
-    }
+    public BigDecimal getPrice() { return price; }
+    public void setPrice(BigDecimal price) { this.price = price; }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+    public int getCategoryId() { return categoryId; }
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getCategoryName() { return categoryName; }
+    public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public int getQuantityAvailable() {
-        return quantityAvailable;
-    }
-
-    public void setQuantityAvailable(int quantityAvailable) {
-        this.quantityAvailable = quantityAvailable;
-    }
-
-    // Alias methods for convenience
-    public int getQuantity() {
-        return quantityAvailable;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantityAvailable = quantity;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
+    public int getQuantityAvailable() { return quantityAvailable; }
+    public void setQuantityAvailable(int quantityAvailable) { this.quantityAvailable = quantityAvailable; }
 
     @Override
     public String toString() {
-        return productName + " - $" + price;
+        return "Product{id=" + productId + ", name='" + productName + "', price=" + price + "}";
     }
 }
