@@ -2,6 +2,8 @@ package com.ecommerce;
 
 import java.io.IOException;
 
+import com.ecommerce.util.DatabaseInitializer;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,21 +16,68 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         this.primaryStage = stage;
-        showLogin();
+        
+        // Initialize database on startup
+        System.out.println("🚀 Starting e-Commerce Application...");
+        DatabaseInitializer.initializeDatabase();
+        
+        showLogin(); // Start with user/guest login
+    }
+
+    private void showAdminLogin() throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/ecommerce/admin-login.fxml"));
+        Parent root = loader.load();
+
+        com.ecommerce.controllers.AdminLoginController controller = loader.getController();
+        controller.setHost(new com.ecommerce.controllers.AdminLoginController.AdminLoginHost() {
+            @Override
+            public void onAdminAuthenticated() {
+                try {
+                    showAdminView();
+                } catch (IOException e) {
+                    showError("Failed to load admin view", e);
+                }
+            }
+
+            @Override
+            public void onSwitchToUserLogin() {
+                try {
+                    showLogin();
+                } catch (IOException e) {
+                    showError("Failed to load user login", e);
+                }
+            }
+        });
+
+        Scene scene = new Scene(root, 450, 400);
+        primaryStage.setTitle("Admin Login - E-Commerce System");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
+        primaryStage.show();
     }
 
     private void showLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/ecommerce/login-view.fxml"));
         Parent root = loader.load();
 
-        com.ecommerce.Controllers.LoginController controller = loader.getController();
-        controller.setHost(new com.ecommerce.Controllers.LoginController.MainHost() {
+        com.ecommerce.controllers.LoginController controller = loader.getController();
+        controller.setHost(new com.ecommerce.controllers.LoginController.MainHost() {
             @Override
-            public void onAuthenticated() {
+            public void onAdminAuthenticated() {
                 try {
                     showAdminView();
                 } catch (IOException e) {
                     showError("Failed to load admin view", e);
+                }
+            }
+
+            @Override
+            public void onUserAuthenticated() {
+                try {
+                    showClientView();
+                } catch (IOException e) {
+                    showError("Failed to load client view", e);
                 }
             }
 
@@ -40,12 +89,22 @@ public class Main extends Application {
                     showError("Failed to load client view", e);
                 }
             }
+
+            @Override
+            public void onSwitchToAdminLogin() {
+                try {
+                    showAdminLogin();
+                } catch (IOException e) {
+                    showError("Failed to load admin login", e);
+                }
+            }
         });
 
-        Scene scene = new Scene(root, 520, 420);
+        Scene scene = new Scene(root);
         primaryStage.setTitle("Sign In - Smart E-Commerce System");
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
+        primaryStage.setMaximized(true);
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
@@ -66,13 +125,16 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/com/ecommerce/client-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
 
-        primaryStage.setTitle("Smart E-Commerce System - Client");
+        primaryStage.setTitle("Smart E-Commerce System - Customer");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(1000);
         primaryStage.setMinHeight(700);
+        primaryStage.setResizable(true);
+        primaryStage.centerOnScreen();
         primaryStage.show();
 
-        System.out.println("✓ Client view loaded");
+        System.out.println("✓ Client view loaded for " + 
+            com.ecommerce.controllers.UserSession.getCurrentUserName());
     }
 
     private void showError(String message, Exception e) {

@@ -8,6 +8,7 @@ CREATE TABLE Users (
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     address TEXT,
+    role VARCHAR(20) DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -67,7 +68,6 @@ CREATE TABLE Reviews (
 );
 
 -- ============ INDEXES FOR PERFORMANCE ============
--- Add indexes to optimize common lookups, joins, and range queries
 CREATE INDEX idx_users_email ON Users(email);
 CREATE INDEX idx_products_category ON Products(category_id);
 CREATE INDEX idx_products_name ON Products(name);
@@ -81,13 +81,15 @@ CREATE INDEX idx_reviews_user ON Reviews(user_id);
 
 -- ============ SAMPLE DATA ============
 
--- Insert Sample Users
-INSERT INTO Users (name, email, password, phone, address) VALUES
-('John Doe', 'john.doe@email.com', 'hashed_password_123', '555-1001', '123 Main St, City A'),
-('Jane Smith', 'jane.smith@email.com', 'hashed_password_456', '555-1002', '456 Oak Ave, City B'),
-('Bob Johnson', 'bob.j@email.com', 'hashed_password_789', '555-1003', '789 Pine Rd, City C'),
-('Alice Williams', 'alice.w@email.com', 'hashed_password_101', '555-1004', '321 Elm St, City D'),
-('Charlie Brown', 'charlie.b@email.com', 'hashed_password_202', '555-1005', '654 Maple Dr, City E');
+-- Insert Sample Users with plaintext passwords
+-- Password: "password123"
+INSERT INTO Users (name, email, password, phone, address, role) VALUES
+('Admin User', 'admin@example.com', 'password123', '555-0001', '123 Admin St', 'admin'),
+('John Doe', 'john.doe@email.com', 'password123', '555-1001', '123 Main St, City A', 'user'),
+('Jane Smith', 'jane.smith@email.com', 'password123', '555-1002', '456 Oak Ave, City B', 'user'),
+('Bob Johnson', 'bob.j@email.com', 'password123', '555-1003', '789 Pine Rd, City C', 'user'),
+('Alice Williams', 'alice.w@email.com', 'password123', '555-1004', '321 Elm St, City D', 'user'),
+('Charlie Brown', 'charlie.b@email.com', 'password123', '555-1005', '654 Maple Dr, City E', 'user');
 
 -- Insert Sample Categories
 INSERT INTO Categories (category_name, description) VALUES
