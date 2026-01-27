@@ -12,6 +12,7 @@ import com.ecommerce.models.User;
 import com.ecommerce.service.CategoryService;
 import com.ecommerce.service.InventoryService;
 import com.ecommerce.service.OrderService;
+import com.ecommerce.service.PerformanceReportService;
 import com.ecommerce.service.ProductService;
 import com.ecommerce.service.UserService;
 
@@ -29,6 +30,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -63,6 +65,7 @@ public class AdminDashboardController {
     @FXML private Button ordersBtn;
     @FXML private Button usersBtn;
     @FXML private Button inventoryBtn;
+    @FXML private Button performanceBtn;
     
     // Services
     private ProductService productService;
@@ -137,6 +140,14 @@ public class AdminDashboardController {
         contentArea.getChildren().clear();
         contentArea.getChildren().add(createInventoryView());
         updateStatus("Inventory management loaded");
+    }
+    
+    @FXML
+    private void showPerformanceReport() {
+        setActiveButton(performanceBtn);
+        contentArea.getChildren().clear();
+        contentArea.getChildren().add(createPerformanceReportView());
+        updateStatus("Performance report loaded");
     }
     
     @FXML
@@ -885,10 +896,165 @@ public class AdminDashboardController {
         return table;
     }
     
+    // ============ PERFORMANCE REPORT VIEW ============
+    
+    private VBox createPerformanceReportView() {
+        VBox container = new VBox(20);
+        container.setPadding(new Insets(20));
+        container.setStyle("-fx-background-color: #f5f6fa;");
+        
+        // Header
+        Label titleLabel = new Label("Performance Analysis Dashboard");
+        titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;");
+        
+        Label subtitleLabel = new Label("Generate comprehensive performance reports comparing pre- and post-optimization metrics");
+        subtitleLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+        subtitleLabel.setWrapText(true);
+        
+        // Action Buttons
+        HBox buttonBox = new HBox(10);
+        buttonBox.setAlignment(Pos.CENTER_LEFT);
+        
+        Button runBenchmarkBtn = new Button("🚀 Run Benchmarks");
+        runBenchmarkBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; " +
+                                 "-fx-font-size: 14px; -fx-padding: 10 20; -fx-cursor: hand; " +
+                                 "-fx-background-radius: 5;");
+        
+        Button saveReportBtn = new Button("💾 Save Report");
+        saveReportBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; " +
+                              "-fx-font-size: 14px; -fx-padding: 10 20; -fx-cursor: hand; " +
+                              "-fx-background-radius: 5;");
+        saveReportBtn.setDisable(true);
+        
+        buttonBox.getChildren().addAll(runBenchmarkBtn, saveReportBtn);
+        
+        // Report Output Area
+        Label outputLabel = new Label("Report Output:");
+        outputLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        
+        TextArea reportOutput = new TextArea();
+        reportOutput.setEditable(false);
+        reportOutput.setWrapText(false);
+        reportOutput.setStyle("-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 12px;");
+        reportOutput.setPrefHeight(400);
+        VBox.setVgrow(reportOutput, Priority.ALWAYS);
+        
+        // Info Panel
+        VBox infoPanel = new VBox(5);
+        infoPanel.setStyle("-fx-background-color: #ecf0f1; -fx-padding: 15; -fx-background-radius: 5;");
+        
+        Label infoTitle = new Label("ℹ️ About This Tool");
+        infoTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
+        
+        Label info1 = new Label("• Measures query execution times before and after optimization");
+        Label info2 = new Label("• Tests database indexes, caching, and connection pooling");
+        Label info3 = new Label("• Generates detailed reports with methodology and findings");
+        Label info4 = new Label("• Exports reports in Markdown format for documentation");
+        
+        infoPanel.getChildren().addAll(infoTitle, info1, info2, info3, info4);
+        
+        // Store reference for button actions
+        final PerformanceReportService.PerformanceReport[] currentReport = {null};
+        
+        // Run Benchmark Action
+        runBenchmarkBtn.setOnAction(e -> {
+            runBenchmarkBtn.setDisable(true);
+            reportOutput.setText("Running performance benchmarks...\n\nThis may take a few moments...\n");
+            
+            // Run in background thread
+            new Thread(() -> {
+                try {
+                    PerformanceReportService service = new PerformanceReportService();
+                    PerformanceReportService.PerformanceReport report = service.runBenchmarks();
+                    currentReport[0] = report;
+                    
+                    // Update UI on JavaFX thread
+                    javafx.application.Platform.runLater(() -> {
+                        displayReport(reportOutput, report);
+                        saveReportBtn.setDisable(false);
+                        runBenchmarkBtn.setDisable(false);
+                        updateStatus("Performance benchmarks completed");
+                    });
+                } catch (Exception ex) {
+                    javafx.application.Platform.runLater(() -> {
+                        reportOutput.setText("Error running benchmarks: " + ex.getMessage());
+                        runBenchmarkBtn.setDisable(false);
+                        updateStatus("Benchmark failed");
+                    });
+                }
+            }).start();
+        });
+        
+        // Save Report Action
+        saveReportBtn.setOnAction(e -> {
+            if (currentReport[0] != null) {
+                javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+                fileChooser.setTitle("Save Performance Report");
+                fileChooser.setInitialFileName("performance_report_" + 
+                    java.time.LocalDateTime.now().format(
+                        java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+                    ) + ".md");
+                fileChooser.getExtensionFilters().add(
+                    new javafx.stage.FileChooser.ExtensionFilter("Markdown Files", "*.md")
+                );
+                
+                java.io.File file = fileChooser.showSaveDialog(saveReportBtn.getScene().getWindow());
+                
+                if (file != null) {
+                    PerformanceReportService service = new PerformanceReportService();
+                    service.generateReportFile(currentReport[0], file.getAbsolutePath());
+                    reportOutput.appendText("\n✓ Report saved to: " + file.getAbsolutePath());
+                    updateStatus("Report saved successfully");
+                }
+            }
+        });
+        
+        container.getChildren().addAll(
+            titleLabel, subtitleLabel,
+            new Separator(),
+            buttonBox,
+            outputLabel, reportOutput,
+            infoPanel
+        );
+        
+        return container;
+    }
+    
+    private void displayReport(TextArea reportOutput, PerformanceReportService.PerformanceReport report) {
+        StringBuilder output = new StringBuilder();
+        
+        output.append("========================================\n");
+        output.append("PERFORMANCE BENCHMARK REPORT\n");
+        output.append("========================================\n\n");
+        
+        output.append("Generated: ").append(
+            java.time.LocalDateTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            )
+        ).append("\n\n");
+        
+        output.append(String.format("Total Tests: %d\n", report.getMetrics().size()));
+        output.append(String.format("Average Improvement: %.1f%%\n\n", 
+            report.getAverageImprovement()));
+        
+        output.append(report.toTable());
+        
+        output.append("\n\nMETHODOLOGY:\n");
+        output.append("- Database Indexing: B-tree indexes on frequently queried columns\n");
+        output.append("- Caching: In-memory caching with 5-minute TTL\n");
+        output.append("- Connection Pooling: Singleton pattern for connection reuse\n");
+        output.append("- Query Optimization: Reduced N+1 queries using JOINs\n");
+        output.append("- In-Memory Operations: Cart without database I/O\n\n");
+        
+        output.append("✓ Report generated successfully. Click 'Save Report' to export.\n");
+        
+        reportOutput.setText(output.toString());
+    }
+    
     // ============ HELPER METHODS ============
     
     private void setActiveButton(Button activeBtn) {
-        Button[] buttons = {dashboardBtn, productsBtn, ordersBtn, usersBtn, inventoryBtn};
+        Button[] buttons = {dashboardBtn, productsBtn, ordersBtn, usersBtn, inventoryBtn, performanceBtn};
         for (Button btn : buttons) {
             if (btn != null) {
                 if (btn == activeBtn) {

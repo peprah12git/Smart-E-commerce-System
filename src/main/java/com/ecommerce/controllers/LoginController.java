@@ -92,8 +92,12 @@ public class LoginController {
         );
 
         if (result.isSuccess()) {
-            showError("Registration successful! You can now sign in.");
-            clearRegisterForm();
+            // Automatically sign in the newly registered user
+            User newUser = result.getUser();
+            UserSession.setCurrentUser(newUser);
+            
+            // Navigate to client view (registered users are always regular users, not admins)
+            mainHost.onUserAuthenticated();
         } else {
             showError(result.getMessage());
         }

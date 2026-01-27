@@ -44,7 +44,7 @@ public class UserService {
      */
     public User authenticate(String email, String password) {
         if (email == null || email.trim().isEmpty()) {
-            System.err.println("[UserService] Email is required");
+            System.err.println("UserService Email is required");
             return null;
         }
         if (password == null || password.trim().isEmpty()) {

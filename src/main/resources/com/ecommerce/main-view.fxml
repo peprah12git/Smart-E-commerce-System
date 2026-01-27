@@ -43,6 +43,9 @@
                 <Button fx:id="inventoryBtn" text="📋  Inventory" onAction="#showInventory"
                         style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 20; -fx-background-radius: 5; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;"
                         maxWidth="Infinity" />
+                <Button fx:id="performanceBtn" text="📈  Performance" onAction="#showPerformanceReport"
+                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 12 20; -fx-background-radius: 5; -fx-cursor: hand; -fx-alignment: CENTER_LEFT;"
+                        maxWidth="Infinity" />
             </VBox>
 
             <Region VBox.vgrow="ALWAYS" />

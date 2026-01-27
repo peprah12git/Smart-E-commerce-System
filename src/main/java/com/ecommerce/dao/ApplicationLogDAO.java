@@ -1,28 +1,21 @@
 package com.ecommerce.dao;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bson.Document;
+import org.bson.types.ObjectId;
+
 import com.ecommerce.config.MongoDBConnection;
 import com.ecommerce.models.ApplicationLog;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
- * MongoDB DAO for Application Logs - Handles unstructured application log data
- * 
- * Why MongoDB for Application Logs:
- * 1. Unstructured data - logs have varying fields depending on log type
- * 2. High write throughput - logs are written frequently, MongoDB handles this well
- * 3. Easy schema evolution - new log fields can be added without migrations
- * 4. Built-in TTL - MongoDB supports automatic log rotation via TTL indexes
- * 5. Fast retrieval - optimized for time-series data queries
- * 6. Flexible queries - can search on any field without predefined schema
+ * MongoDB DAO for Application Logs - Handles unstructured application log data for fast retrieval, easy schema evolution
+ * and flexible querying.
  */
 public class ApplicationLogDAO {
     

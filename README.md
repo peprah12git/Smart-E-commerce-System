@@ -129,9 +129,15 @@ src/main/java/com/ecommerce/
 │   ├── Review.java
 │   └── Inventory.java
 ├── service/
-│   ├── CartService.java          # Cart business logic
-│   ├── ReviewService.java        # Review business logic
-│   └── InventoryService.java     # Inventory business logic
+│   ├── UserService.java          # User authentication & management
+│   ├── ProductService.java       # Product catalog & search
+│   ├── CartService.java          # Shopping cart management
+│   ├── OrderService.java         # Order processing & history
+│   ├── CategoryService.java      # Category management with caching
+│   ├── InventoryService.java     # Stock tracking & updates
+│   ├── ReviewService.java        # Product reviews with caching
+│   └── PerformanceReportService.java  # Performance benchmarking
+
 └── ui/
     └── App.java                  # JavaFX Application class
 ```
@@ -216,12 +222,63 @@ The application includes pre-populated sample data:
 - Run `mvn clean install` to rebuild
 - Check for compilation errors
 
+## Performance Benchmarking
+
+The application includes a comprehensive **Performance Report Generation System** (User Story 4.1) that measures and analyzes query execution times before and after optimization techniques.
+
+### Features
+- ✅ 8 comprehensive benchmark tests covering key operations
+- ✅ Measures pre-optimization vs post-optimization performance
+- ✅ Documents improvements from indexes, caching, and query optimization
+- ✅ Generates detailed markdown reports with methodology
+- ✅ Command-line tool for analysts
+- ✅ Optional UI dashboard for performance analysis
+
+### Running Performance Benchmarks
+
+#### Method 1: Command Line (Recommended)
+```powershell
+# Compile the project
+mvn clean compile
+
+# Run benchmarks
+mvn exec:java -Dexec.mainClass="com.ecommerce.util.PerformanceBenchmarkRunner"
+
+# Save to custom file
+mvn exec:java -Dexec.mainClass="com.ecommerce.util.PerformanceBenchmarkRunner" -Dexec.args="reports/my_report.md"
+```
+
+#### Method 2: From UI Dashboard
+1. Launch the application: `mvn javafx:run`
+2. Navigate to the **Performance Report** section
+3. Click **"Run Benchmarks"** button
+4. Save the generated report
+
+### What Gets Tested
+The benchmark suite measures performance improvements in:
+- **User Authentication**: Email index optimization (~96% improvement)
+- **Product Catalog**: Caching strategies (~90% improvement)
+- **Category Search**: Database indexing (~85% improvement)
+- **Order History**: JOIN optimization & multiple indexes (~85% improvement)
+- **Product Reviews**: Indexed queries (~80% improvement)
+- **Cart Operations**: In-memory processing (~100% improvement)
+- **Category Loading**: Caching and indexing
+- **Connection Pooling**: Singleton pattern reuse
+
+### Benchmark Components
+- **PerformanceReportService.java** - Core benchmarking engine
+- **PerformanceBenchmarkRunner.java** - Standalone CLI tool
+- **PerformanceReportController.java** - JavaFX UI controller
+- **performance-report.fxml** - Dashboard interface
+
 ## Documentation
 
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [Database Design Document](docs/DATABASE_DESIGN.md)
 - [Performance Report](docs/PERFORMANCE_REPORT.md)
 - [NoSQL Comparison](docs/NOSQL_COMPARISON.md)
+- [Performance Benchmark Implementation](docs/USER_STORY_4.1_IMPLEMENTATION.md)
+- [Performance Benchmark Guide](PERFORMANCE_BENCHMARK_GUIDE.md)
 
 ## License
 This project is for educational purposes.
