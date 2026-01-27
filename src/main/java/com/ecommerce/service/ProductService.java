@@ -1,12 +1,12 @@
 package com.ecommerce.service;
 
-import com.ecommerce.dao.ProductDAO;
-import com.ecommerce.models.Product;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.ecommerce.dao.ProductDAO;
+import com.ecommerce.models.Product;
 
 /**
  * Service layer for Product operations
@@ -257,5 +257,31 @@ public class ProductService {
      */
     public String getCacheStats() {
         return ProductDAO.getCacheStats();
+    }
+
+    /**
+     * Measure query time; optionally force cache miss.
+     */
+    public long measureQueryTime(boolean useCache) {
+        if (!useCache) {
+            productDAO.invalidateCache();
+        }
+        long start = System.currentTimeMillis();
+        productDAO.getAllProducts();
+        return System.currentTimeMillis() - start;
+    }
+
+    /**
+     * Pass-through search by name used by controllers.
+     */
+    public List<Product> searchProductsByName(String term) {
+        return productDAO.searchProductsByName(term);
+    }
+
+    /**
+     * Pass-through category filter used by controllers.
+     */
+    public List<Product> filterByCategory(int categoryId) {
+        return getProductsByCategory(categoryId);
     }
 }
