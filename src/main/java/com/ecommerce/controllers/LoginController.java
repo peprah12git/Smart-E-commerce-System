@@ -1,142 +1,95 @@
-package com.ecommerce.controllers;
+package com.ecommerce.Controllers;
 
-import com.ecommerce.models.User;
 import com.ecommerce.service.UserService;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 
-/**
- * Controller for Login view
- * Uses UserService for authentication and registration
- * 
- * Pattern: Controller -> Service -> DAO
- */
 public class LoginController {
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private TextField nameField;
-    @FXML private TextField registerEmailField;
-    @FXML private PasswordField registerPasswordField;
-    @FXML private TextField phoneField;
-    @FXML private TextArea addressField;
-    @FXML private Label errorLabel;
-    @FXML private VBox loginBox;
-    @FXML private VBox registerBox;
 
-    // Service (not DAO)
-    private UserService userService;
-    private MainHost mainHost;
+    @FXML private TextField txtEmail;
+    @FXML private PasswordField txtPassword;
+    @FXML private Label lblStatus;
 
-    @FXML
-    public void initialize() {
-        // Use service instead of DAO
-        userService = UserService.getInstance();
+    private MainHost host;
+    private final UserService userService = new UserService();
+
+    public interface MainHost {
+        void onAuthenticated();
+        void onGuest();
     }
 
     public void setHost(MainHost host) {
-        this.mainHost = host;
+        this.host = host;
     }
-// Handle Sign In button click
-    @FXML
-    private void handleSignIn() {
-        String email = emailField.getText();
-        String password = passwordField.getText();
 
-        if (email.isEmpty() || password.isEmpty()) {
-            showError("Please enter email and password");
+    @FXML
+    private void handleLogin() {
+        String email = txtEmail != null ? txtEmail.getText().trim() : "";
+        String password = txtPassword != null ? txtPassword.getText() : "";
+
+        // Validation
+        if (email.isEmpty()) {
+            showStatus("Email cannot be empty", true);
             return;
         }
 
-        // Use UserService for authentication
-        User user = userService.authenticate(email, password);
-        if (user != null) {
-            UserSession.setCurrentUser(user);
-            // Route based on user role
-            if ("admin".equalsIgnoreCase(user.getRole())) {
-                mainHost.onAdminAuthenticated();
-            } else {
-                mainHost.onUserAuthenticated();
+        if (!email.contains("@")) {
+            showStatus("Please enter a valid email address", true);
+            return;
+        }
+
+        if (password.isEmpty()) {
+            showStatus("Password cannot be empty", true);
+            return;
+        }
+
+        // Authenticate
+        System.out.println("[AUTH] Attempting login for: " + email);
+        boolean authenticated = userService.authenticateUser(email, password);
+        
+        if (authenticated) {
+            System.out.println("[AUTH] ✓ Login successful for: " + email);
+            showStatus("✓ Signed in successfully", false);
+            
+            if (txtPassword != null) {
+                txtPassword.clear();
             }
+            if (txtEmail != null) {
+                txtEmail.clear();
+            }
+            
+            // Switch to main view after brief delay
+            new Thread(() -> {
+                try {
+                    Thread.sleep(800);
+                    if (host != null) {
+                        Platform.runLater(() -> host.onAuthenticated());
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
         } else {
-            showError("Invalid email or password");
+            System.out.println("[AUTH] ✗ Login failed for: " + email);
+            showStatus("Invalid email or password", true);
         }
     }
 
     @FXML
     private void handleGuest() {
-        UserSession.setCurrentUser(new User(0, "Guest", "guest@example.com", "", "", ""));
-        mainHost.onGuest();
-    }
-
-    @FXML
-    private void handleAdminLogin() {
-        mainHost.onSwitchToAdminLogin();
-    }
-
-    @FXML
-    private void handleRegister() {
-        String name = nameField.getText();
-        String email = registerEmailField.getText();
-        String password = registerPasswordField.getText();
-        String phone = phoneField.getText();
-        String address = addressField.getText();
-
-        // Use UserService for registration with validation
-        UserService.RegisterResult result = userService.registerUser(
-                name, email, password, phone, address
-        );
-
-        if (result.isSuccess()) {
-            // Automatically sign in the newly registered user
-            User newUser = result.getUser();
-            UserSession.setCurrentUser(newUser);
-            
-            // Navigate to client view (registered users are always regular users, not admins)
-            mainHost.onUserAuthenticated();
-        } else {
-            showError(result.getMessage());
+        showStatus("Continuing as guest", false);
+        if (host != null) {
+            Platform.runLater(() -> host.onGuest());
         }
     }
 
-    private void showError(String message) {
-        errorLabel.setText(message);
-    }
-
-    @FXML
-    private void showRegisterForm() {
-        loginBox.setVisible(false);
-        loginBox.setManaged(false);
-        registerBox.setVisible(true);
-        registerBox.setManaged(true);
-        errorLabel.setText("");
-    }
-
-    @FXML
-    private void showLoginForm() {
-        registerBox.setVisible(false);
-        registerBox.setManaged(false);
-        loginBox.setVisible(true);
-        loginBox.setManaged(true);
-        errorLabel.setText("");
-    }
-
-    private void clearRegisterForm() {
-        nameField.clear();
-        registerEmailField.clear();
-        registerPasswordField.clear();
-        phoneField.clear();
-        addressField.clear();
-    }
-
-    public interface MainHost {
-        void onAdminAuthenticated();
-        void onUserAuthenticated();
-        void onGuest();
-        void onSwitchToAdminLogin();
+    private void showStatus(String message, boolean error) {
+        if (lblStatus == null) return;
+        lblStatus.setText(message);
+        lblStatus.setStyle(error ? "-fx-text-fill: red;" : "-fx-text-fill: green;");
     }
 }

@@ -1,4 +1,4 @@
-package com.ecommerce.controllers;
+package com.ecommerce.Controllers;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +18,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -472,7 +473,7 @@ public class ClientController {
             return;
         }
 
-        List<Product> results = productService.searchByName(searchTerm);
+        List<Product> results = productService.searchProductsByName(searchTerm);
         productTable.setItems(FXCollections.observableArrayList(results));
         showStatus("Found " + results.size() + " product(s)", false);
     }
@@ -487,7 +488,7 @@ public class ClientController {
             return;
         }
 
-        List<Product> filtered = productService.getProductsByCategory(selected.getCategoryId());
+        List<Product> filtered = productService.filterByCategory(selected.getCategoryId());
         productTable.setItems(FXCollections.observableArrayList(filtered));
         showStatus("Filtered: " + filtered.size() + " product(s)", false);
     }
