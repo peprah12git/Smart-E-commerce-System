@@ -25,7 +25,7 @@ import com.ecommerce.util.PerformanceTimer;
  * Performance Report Service
  * Generates comprehensive performance reports comparing pre- and post-optimization metrics
  * 
- * User Story 4.1: Generate performance reports comparing pre- and post-optimization
+ *  Generate performance reports comparing pre- and post-optimization
  * 
  * Acceptance Criteria:
  * - Query execution times recorded before and after optimization
@@ -107,10 +107,10 @@ public class PerformanceReportService {
     private void testUserAuthentication() {
         System.out.println("Test 1: User Authentication (Email Index)");
         
-        // Get a test email
+        // fetch all users from db & grabs first email for testing
         List<User> users = userDAO.getAllUsers();
         if (users.isEmpty()) {
-            System.out.println("  ⚠ No users found - skipping test");
+            System.out.println(" No users found - skipping test");
             return;
         }
         

@@ -2,6 +2,9 @@ package com.ecommerce;
 
 import java.io.IOException;
 
+import com.ecommerce.controllers.AdminLoginController;
+import com.ecommerce.controllers.LoginController;
+import com.ecommerce.controllers.UserSession;
 import com.ecommerce.util.DatabaseInitializer;
 
 import javafx.application.Application;
@@ -12,24 +15,23 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
     private Stage primaryStage;
-    
+
     @Override
     public void start(Stage stage) throws IOException {
         this.primaryStage = stage;
-        
+
         // Initialize database on startup
-        System.out.println("🚀 Starting e-Commerce Application...");
+        System.out.println("Starting e-Commerce Application...");
         DatabaseInitializer.initializeDatabase();
-        
+
         showLogin(); // Start with user/guest login
     }
 
     private void showAdminLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/ecommerce/admin-login.fxml"));
         Parent root = loader.load();
-
-        com.ecommerce.controllers.AdminLoginController controller = loader.getController();
-        controller.setHost(new com.ecommerce.controllers.AdminLoginController.AdminLoginHost() {
+        AdminLoginController controller = loader.getController();
+        controller.setHost(new AdminLoginController.AdminLoginHost() {
             @Override
             public void onAdminAuthenticated() {
                 try {
@@ -53,16 +55,14 @@ public class Main extends Application {
         primaryStage.setTitle("Admin Login - E-Commerce System");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
-        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
     private void showLogin() throws IOException {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/com/ecommerce/login-view.fxml"));
         Parent root = loader.load();
-
-        com.ecommerce.controllers.LoginController controller = loader.getController();
-        controller.setHost(new com.ecommerce.controllers.LoginController.MainHost() {
+        LoginController controller = loader.getController();
+        controller.setHost(new LoginController.MainHost() {
             @Override
             public void onAdminAuthenticated() {
                 try {
@@ -132,9 +132,7 @@ public class Main extends Application {
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
         primaryStage.show();
-
-        System.out.println("✓ Client view loaded for " + 
-            com.ecommerce.controllers.UserSession.getCurrentUserName());
+        System.out.println("✓ Client view loaded for " + UserSession.getCurrentUserName());
     }
 
     private void showError(String message, Exception e) {
@@ -146,7 +144,7 @@ public class Main extends Application {
         alert.setContentText(e.getMessage());
         alert.showAndWait();
     }
-    
+
     @Override
     public void stop() {
         System.out.println("✓ Application closing...");
@@ -154,6 +152,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

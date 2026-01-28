@@ -1,12 +1,16 @@
 package com.ecommerce.controllers;
 
+import java.util.List;
+
 import com.ecommerce.models.Order;
 import com.ecommerce.service.OrderService;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.util.List;
+import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * Controller for Order History view

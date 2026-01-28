@@ -19,7 +19,7 @@ public class DatabaseInitializer {
             Connection conn = DatabaseConnection.getInstance().getConnection();
             
             // Check if Products table has data
-            if (!hasData(conn, "Products")) {
+            if (!hasData(conn, "Products") || !hasData(conn, "Users")) {
                 System.out.println("📝 Sample data not found. Initializing database...");
                 executeSqlScript(conn);
                 System.out.println("✓ Database initialized with sample data!");
@@ -49,13 +49,12 @@ public class DatabaseInitializer {
 
     private static void executeSqlScript(Connection conn) throws SQLException {
         String[] sqlStatements = {
-            // Insert Sample Users
-            "INSERT INTO Users (name, email, password, phone, address) VALUES " +
-            "('John Doe', 'john.doe@email.com', 'hashed_password_123', '555-1001', '123 Main St, City A'), " +
-            "('Jane Smith', 'jane.smith@email.com', 'hashed_password_456', '555-1002', '456 Oak Ave, City B'), " +
-            "('Bob Johnson', 'bob.j@email.com', 'hashed_password_789', '555-1003', '789 Pine Rd, City C'), " +
-            "('Alice Williams', 'alice.w@email.com', 'hashed_password_101', '555-1004', '321 Elm St, City D'), " +
-            "('Charlie Brown', 'charlie.b@email.com', 'hashed_password_202', '555-1005', '654 Maple Dr, City E')",
+            // Insert Sample Users (plain text passwords for testing)
+            "INSERT INTO Users (name, email, password, phone, address, role) VALUES " +
+            "('Admin User', 'admin@test.com', 'admin123', '+1234567890', '123 Admin Street', 'admin'), " +
+            "('John Doe', 'john@test.com', 'john123', '+1987654321', '456 Main Street', 'user'), " +
+            "('Jane Smith', 'jane@test.com', 'jane123', '+1555555555', '789 Oak Avenue', 'user'), " +
+            "('Test User', 'test@test.com', 'test123', '+1666666666', '321 Pine Road', 'user')",
             
             // Insert Sample Categories
             "INSERT INTO Categories (category_name, description) VALUES " +
