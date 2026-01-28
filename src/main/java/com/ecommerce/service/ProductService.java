@@ -58,11 +58,11 @@ public class ProductService {
     public boolean addProduct(Product product) {
         // Business validation
         if (product.getProductName() == null || product.getProductName().trim().isEmpty()) {
-            System.err.println(" Product name is required");
+            System.err.println("[ProductService] Product name is required");
             return false;
         }
         if (product.getPrice() == null || product.getPrice().doubleValue() <= 0) {
-            System.err.println(" Product price must be positive");
+            System.err.println("[ProductService] Product price must be positive");
             return false;
         }
         return productDAO.addProduct(product);
@@ -78,7 +78,7 @@ public class ProductService {
         }
         return productDAO.updateProduct(product);
     }
-    
+
     /**
      * Delete product
      */
@@ -236,7 +236,7 @@ public class ProductService {
                 .limit(limit)
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * Check if product is available
      */
